@@ -1,0 +1,12 @@
+.bg-body-tertiary{
+    border-bottom: 2px solid #3f21214f;
+}
+
+.skylark-logo{
+    width: 150px;
+}
+
+.nav-link {
+   color: grey;
+   font-weight:500;
+}

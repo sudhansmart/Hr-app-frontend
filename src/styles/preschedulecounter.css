@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Satisfy&family=Syne:wght@400..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Satisfy&family=Syne:wght@400..800&display=swap');
+
+
+
+.counterdatas{
+    width: 100%;
+    background-color: #c9d6d7ab;
+    display: flex;
+   flex-direction: column;
+   
+    align-items: center;
+    box-shadow: 3px 7px 8px 0px #808080a1;
+}
+
+.counter-num1{
+    font-family: "Nunito", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 40px;
+    color: #2020e3;
+}
+
+.counter-text1{
+    font-family: "Syne", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 20px;
+    color: #2020e3;
+    text-align: center;
+}
+
+.counter-num2{
+    font-family: "Nunito", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 40px;
+    color: #28a745;
+   
+}
+
+.counter-text2{
+    font-family: "Syne", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 20px;
+    color: #28a745;
+    text-align: center;
+}
+
+.counter-num3{
+    font-family: "Nunito", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 40px;
+    color: #d71111;
+   
+}
+
+.counter-text3{
+    font-family: "Syne", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 17px;
+    color: #d71111;
+    text-align: center;
+}
+
+.counter-num4{
+    font-family: "Nunito", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 40px;
+    color: #d4992e;
+}
+
+.counter-text4{
+    font-family: "Syne", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: 20px;
+    color: #d4992e;
+}

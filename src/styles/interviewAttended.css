@@ -1,0 +1,53 @@
+.scrollable-table1 {
+    table-layout: fixed; 
+    width: 100%; 
+  }
+  
+  .scrollable-table1 th {
+    white-space: nowrap; /* Prevents the header text from wrapping */
+    text-align: center;
+    padding: 10px;
+  }
+  
+  .scrollable-table1 th.sl-no {
+    width: 70px;
+  }
+  
+  .scrollable-table1 th.schedule-date {
+    width: 145px;
+  }
+  
+  .scrollable-table1 th.interview-date {
+    width: 170px;
+  }
+  
+  .scrollable-table1 th.remark1,
+  .scrollable-table1 th.remark2 {
+    width: 220px;
+  }
+  .scrollable-table1 th.final-status{
+    width: 200px;
+  }
+
+  .scrollable-table1 th.name,
+  .scrollable-table1 th.email,
+  .scrollable-table1 th.mobile-number,
+  .scrollable-table1 th.location,
+  .scrollable-table1 th.rec-name{
+    width: 240px;
+  }
+  
+  .scrollable-table1 th.client-name,
+  .scrollable-table1 th.designation,
+  .scrollable-table1 th.total-experience,
+  .scrollable-table1 th.relevant-experience {
+    width: 200px;
+  }
+  
+  .scrollable-table1 th.current-ctc,
+  .scrollable-table1 th.expected-ctc,
+  .scrollable-table1 th.notice-period,
+  .scrollable-table1 th.final-remarks {
+    width: 200px;
+  }
+  

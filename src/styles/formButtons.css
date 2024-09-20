@@ -1,0 +1,10 @@
+.active-button {
+    background-color: #28a745 !important; 
+    border-color: #28a745 !important; 
+}
+.buttonsec{
+    border: 1px solid grey;
+    padding: 1%;
+    border-radius: 5px;
+    box-shadow: 1px 1px 5px 1px #808080cc;
+}
