@@ -1,0 +1,16 @@
+
+
+.label-form{
+    border: #8080807d solid 2px;
+    border-radius: 5px;
+}
+
+.second-section{
+    display: flex;
+    padding: 0% 4%;
+}
+
+.second-left{
+    width: 50%;
+    
+}

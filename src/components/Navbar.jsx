@@ -1,9 +1,10 @@
 import React,{useState,useEffect} from 'react'
 import { Navbar, Nav, Container, NavDropdown ,Button} from 'react-bootstrap'
 import '../styles/navBar.css'
-import logo from '../assets/images/logo.webp'
+import logo from '../assets/images/logo-main.png'
 import { decodeToken } from '../utils/decodeToken';
 import { Link,useNavigate } from 'react-router-dom';
+
 
 function NavBar({setRecruiterLoggedIn}) {
   const navigate = useNavigate();
@@ -29,7 +30,8 @@ function NavBar({setRecruiterLoggedIn}) {
   }
   
   return (
-    <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
+    <Navbar collapseOnSelect expand="lg" className="bg-body">
+       {/* <img src={event} alt="event-logo" className="skylark-event" /> */}
     <Container className='nav'>
       <Navbar.Brand href="#home">
              <img src={logo} alt="Skylark-logo" className="skylark-logo" />
@@ -38,11 +40,13 @@ function NavBar({setRecruiterLoggedIn}) {
       <Navbar.Collapse id="responsive-navbar-nav" className="justify-content-end" >
             
         <Nav > 
-          <Nav.Link as={Link} href="#Home">Home</Nav.Link>
+          <Nav.Link as={Link} to="/">Home</Nav.Link>
 
           <Nav.Link  as={Link} to="/addcandidate">Add Candidate</Nav.Link>
+          <Nav.Link  as={Link} to="/findcandidates">Find Candidate</Nav.Link>
           <Nav.Link  as={Link} to="/preschedule">Pre-Schedule</Nav.Link>
           <Nav.Link  as={Link} to="/postschedule">Post-Schedule</Nav.Link>
+          {/* <Nav.Link as={Link} to="/exportdata">Export Data</Nav.Link> */}
           {userLoggedIn &&
           <NavDropdown title={username}id="collasible-nav-dropdown">
             <NavDropdown.Item href="#action/3.1">Profile</NavDropdown.Item>

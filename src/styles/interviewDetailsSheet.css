@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Krub:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Oxanium:wght@200..800&family=Rokkitt:ital,wght@0,100..900;1,100..900&display=swap');
+
+.interviewdetailsheet-main{
+    /* height: 100vh; */
+    padding: 2%;
+    border: #D0E8C5 solid 1px;
+    margin: 1%;
+    border-radius: 5px;
+}
+
+.interviewdetailsheet-main h4 {
+    font-family: "Nunito", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    color: #608BC1;
+}
+
+.interviewdetailsheet-table{
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 1px 1px 6px 4px #80808026;
+    margin: 0 auto;
+    text-align: center;
+    font-family: "Krub", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.interviewdetailsheet-table th{
+    background-color: #006bd6;
+    color: white;
+    font-family: "Krub", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.interviewdetailsheet-table td{
+    border: 1px solid #95959587;
+    padding: 0.5rem;
+}
+
+.today-candidate{
+    background-color: #5eb55b;
+    color: white;
+    font-family: "Krub", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.lastmodied{
+    background-color: #FFE0B5;
+    color: black;
+    font-family: "Krub", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.pagination1 button{
+    background-color: #D0E8C5;
+    border: none;
+    box-shadow: 1px 2px 4px 0px #59545447;
+    padding: 0.5%;
+    border-radius: 5px;
+    
+}

@@ -1,0 +1,42 @@
+.yettoraise-main{
+    /* height: 100vh; */
+    padding: 2%;
+    border: #D0E8C5 solid 1px;
+    margin: 1%;
+    border-radius: 5px;
+    overflow-y: scroll;
+}
+
+.yettoraise-main h4 {
+    font-family: "Nunito", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    color: #608BC1;
+}
+
+.yettoraise-table{
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 1px 1px 6px 4px #80808026;
+    margin: 0 auto;
+    text-align: center;
+    font-family: "Krub", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.yettoraise-table th{
+    background-color: #006bd6;
+    color: white;
+    font-family: "Krub", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    border-right: 1px solid white;
+    padding: 10px
+}
+
+.yettoraise-table td{
+    border: 1px solid #95959587;
+    padding: 0.5rem;
+}

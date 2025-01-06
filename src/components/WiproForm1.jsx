@@ -10,10 +10,10 @@ import { decodeToken } from '../utils/decodeToken';
 
 
 
-function WiproForm1() {
+function WiproForm1({onFormSubmit}) {
   const fileInputRef = useRef(null);
   const [recruiterName, setRecruiterName] = useState('');
-
+  const [btnLoading, setBtnLoading] = useState(false);
   const [recruiterId, setRecruiterId] = useState('');
 
   useEffect(() => {
@@ -40,11 +40,11 @@ function WiproForm1() {
       .required('Mobile No is required'),
       overAllExp: yup
       .string()
-      .matches(/^\d+$/, 'Overall experience must be a number')
+      .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
       .required('Overall Experience is required'),
     relevantExp: yup
       .string()
-      .matches(/^\d+$/, 'Relevant experience must be a number')
+      .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
       .required('Relevant Experience is required'),
     location : yup.string().required('Location is required'),
     preferredLocation : yup.string().required('Preferred Location is required'),
@@ -52,12 +52,17 @@ function WiproForm1() {
     currentCompany : yup.string().required('Current Company is required'),
     role : yup.string().required('Role is required'),
     qualification : yup.string().required('Highest Education is required'),
-    currentCtc : yup.string().required('Current CTC is required'),
-    expectedCtc : yup.string().required('Expected CTC is required'),
+    currentCtc : yup.string()
+    .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+    .required('Current CTC is required'),
+    expectedCtc : yup.string()
+    .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+    .required('Expected CTC is required'),
     remarks : yup.string().required('Remarks is required'),
   });
  
   const handleSubmit = async (values, { resetForm }) => {
+    setBtnLoading(true);
     try {
       const formData = new FormData();
 
@@ -107,7 +112,8 @@ function WiproForm1() {
       formData.append('vendorName', 'SKYLARK HR SOLUTIONS');
      
       console.log('Form Data:', Object.fromEntries(formData));
-      const response = await axios.post('http://localhost:5000/candidate/add', formData, {
+      const response = await axios.post('http://103.38.50.152/nodejs/candidate/add', formData, {
+        // const response = await axios.post('http://localhost:5000/candidate/add', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -116,6 +122,8 @@ function WiproForm1() {
         alert('Your data has been saved successfully!');
          resetForm();
          fileInputRef.current.value = '';
+         onFormSubmit();
+         setBtnLoading(false);
       }
     } catch (error) {
       console.error('App.Form API Error:', error);
@@ -456,7 +464,12 @@ function WiproForm1() {
         <Form.Control as="textarea"
          name="remarks"
          value={values.remarks}
-         onChange={handleChange} rows={2} />
+         onChange={handleChange} rows={2} 
+         isValid={touched.remarks && !errors.remarks}
+         isInvalid={touched.remarks && !!errors.remarks} />
+          <Form.Control.Feedback type="invalid">
+               {errors.remarks}
+             </Form.Control.Feedback>
       </Form.Group>
          </Row>
          <div className='d-flex' style={{justifyContent:'space-evenly'}}>
@@ -464,7 +477,7 @@ function WiproForm1() {
                                    resetForm();
                                fileInputRef.current.value = '';}} 
                  >Reset All</Button>
-           <Button type="submit">Submit</Button>
+           <Button type="submit" disabled={btnLoading}>Submit</Button>
           </div>
         </Form>
       )}

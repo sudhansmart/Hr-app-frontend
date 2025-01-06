@@ -4,8 +4,23 @@ import { faArrowDown, faArrowUp,  faCheck, faTimes } from '@fortawesome/free-sol
 import { FaPencilAlt } from "react-icons/fa";
 import axios from 'axios';
 import { decodeToken } from '../utils/decodeToken';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 
+const TableCellWithTooltip = ({ content, maxLength }) => {
+  const renderTooltip = (props) => (
+    <Tooltip id="tooltip-top" {...props}>
+      {content}
+    </Tooltip>
+  );
 
+  const truncatedContent = content.length > maxLength ? `${content.slice(0, maxLength)}...` : content;
+
+  return (
+    <OverlayTrigger placement="top" overlay={renderTooltip} delay={{ show: 250, hide: 400 }}>
+      <td>{truncatedContent}</td>
+    </OverlayTrigger>
+  );
+};
 const ShorlistOnHold = () => {
   const [searchText, setSearchText] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -21,7 +36,8 @@ const ShorlistOnHold = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
+      const response = await axios.get('http://103.38.50.152/nodejs/candidate/candidatesdata');
+      // const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
       const data = response.data;
 
       // Flatten the nested data if necessary
@@ -37,7 +53,7 @@ const ShorlistOnHold = () => {
 
       // Filter by recruiterId
       const filteredData = flattenedData.filter(item => item.recruiterId === recruiterId.toString());
-      const offerreleased = filteredData.filter(item => item.joinedStatus === "joined");
+      const offerreleased = filteredData.filter(item => item.offerStatus === "hold");
       setFormdata(offerreleased);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -46,7 +62,8 @@ const ShorlistOnHold = () => {
 
   const fetchAllData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
+      const response = await axios.get('http://103.38.50.152/nodejs/candidate/candidatesdata');
+      // const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
 
       const data = response.data;
 
@@ -60,7 +77,7 @@ const ShorlistOnHold = () => {
         ...candidate.accenture,
         _id: candidate._id, // Ensure _id is preserved
       }));     
-      const filteredData = flattenedData.filter(item => item.joinedStatus === "hold");
+      const filteredData = flattenedData.filter(item => item.offerStatus === "hold");
       setFormdata(filteredData);
       
       
@@ -105,7 +122,8 @@ const ShorlistOnHold = () => {
 
     // Make an API call to update the interview status in the backend 
     try {
-      const response = axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
+      const response = axios.put(`http://103.38.50.152/nodejs/candidate/updateinterviewfinalstatus/${id}`, {
+        // const response = axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
        
         onHoldremarks: file.onHoldremarks,
         onHoldDate: file.onHoldDate,
@@ -144,7 +162,8 @@ const ShorlistOnHold = () => {
 
     try {
       // Make an API call to update the interview status in the backend
-      const response = await axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
+      const response = await axios.put(`http://103.38.50.152/nodejs/candidate/updateinterviewfinalstatus/${id}`, {
+      // const response = await axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
         joinedStatus: value,
       });
   
@@ -174,6 +193,8 @@ const ShorlistOnHold = () => {
     const roleMatch = item.role?.toLowerCase().includes(searchText.toLowerCase());
     const positionMatch = item.position?.toLowerCase().includes(searchText.toLowerCase());
     const clientMatch = item.clientName?.toLowerCase().includes(searchText.toLowerCase());
+    const locationMatch = item.location?.toLowerCase().includes(searchText.toLowerCase());
+    const emailMatch = item.email?.toLowerCase().includes(searchText.toLowerCase());
 
     const dateObject = new Date(item.date);
     const formattedDate = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate());
@@ -187,7 +208,7 @@ const ShorlistOnHold = () => {
       formattedDate >= new Date(startDateWithoutTime) &&
       formattedDate <= new Date(endDateWithoutTime);
 
-    return (nameMatch || roleMatch || positionMatch || clientMatch) && (!startDateWithoutTime || dateMatch);
+    return (nameMatch || locationMatch || emailMatch || roleMatch || positionMatch || clientMatch) && (!startDateWithoutTime || dateMatch);
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -197,7 +218,7 @@ const ShorlistOnHold = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div className="container mt-4" style={{ height: '100vh' }}>
+    <div className=" mt-4" style={{ height: '100vh' }}>
       <div className="col-md-12">
         <h4 className="pt-3 pb-4 text-center font-bold font-up deep-purple-text">Shorlist On Hold Sheet</h4>
         <div className="input-group mb-3">
@@ -227,11 +248,12 @@ const ShorlistOnHold = () => {
         </div>
       </div>
 
-      <div className="datatable overflow-auto">
+      <div className="datatable overflow-auto"   style={{ overflowY: "scroll" ,maxHeight: "65%"}}>
         <table className="table table-striped table-bordered scrollable-table">
-          <thead className="align-text-bottom text-center">
+          <thead className="align-text-bottom text-center" style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
             <tr>
               <th>SL.No</th>
+              {adminLoggedIn && <th className="rec-name">Recruiter Name</th>}
               <th>
                 Shortlisted Date
                 <button className="btn btn-link" onClick={toggleSortOrder}>
@@ -257,7 +279,8 @@ const ShorlistOnHold = () => {
           <tbody>
             {currentItems.map((item, index) => (
               <tr key={item._id} className="align-text-bottom text-center">
-                <th scope="row">{index + 1}</th>
+                  <th scope="row">{indexOfFirstItem + index + 1}</th>
+                {adminLoggedIn && <td>{item.recruiterName}</td>}
                 {adminLoggedIn?  <td> {editingRowId === item._id ? (
                     <>  <input
                       type="text"
@@ -389,17 +412,93 @@ const ShorlistOnHold = () => {
         </table>
       </div>
 
-      <div className="pagination justify-content-center">
-        <ul className="pagination">
-          {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }, (_, index) => (
-            <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-              <button onClick={() => paginate(index + 1)} className="page-link">
-                {index + 1}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <div className="pagination justify-content-center mt-3">
+  <ul className="pagination">
+    {/* Previous Button */}
+    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+      <button
+        onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+        className="page-link"
+      >
+        Previous
+      </button>
+    </li>
+
+    {/* First Page */}
+    {currentPage > 2 && (
+      <li className="page-item">
+        <button onClick={() => paginate(1)} className="page-link">
+          1
+        </button>
+      </li>
+    )}
+
+    {/* Dots before current page range */}
+    {currentPage > 3 && (
+      <li className="page-item disabled">
+        <span className="page-link">...</span>
+      </li>
+    )}
+
+    {/* Display 3 pages around the current page */}
+    {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }, (_, index) => index + 1)
+      .filter(
+        (page) =>
+          page === currentPage ||
+          page === currentPage - 1 ||
+          page === currentPage + 1
+      )
+      .map((page) => (
+        <li
+          key={page}
+          className={`page-item ${currentPage === page ? 'active' : ''}`}
+        >
+          <button onClick={() => paginate(page)} className="page-link">
+            {page}
+          </button>
+        </li>
+      ))}
+
+    {/* Dots after current page range */}
+    {currentPage < Math.ceil(filteredData.length / itemsPerPage) - 2 && (
+      <li className="page-item disabled">
+        <span className="page-link">...</span>
+      </li>
+    )}
+
+    {/* Last Page */}
+    {currentPage < Math.ceil(filteredData.length / itemsPerPage) - 1 && (
+      <li className="page-item">
+        <button
+          onClick={() => paginate(Math.ceil(filteredData.length / itemsPerPage))}
+          className="page-link"
+        >
+          {Math.ceil(filteredData.length / itemsPerPage)}
+        </button>
+      </li>
+    )}
+
+    {/* Next Button */}
+    <li
+      className={`page-item ${
+        currentPage === Math.ceil(filteredData.length / itemsPerPage)
+          ? 'disabled'
+          : ''
+      }`}
+    >
+      <button
+        onClick={() =>
+          currentPage < Math.ceil(filteredData.length / itemsPerPage) &&
+          paginate(currentPage + 1)
+        }
+        className="page-link"
+      >
+        Next
+      </button>
+    </li>
+  </ul>
+</div>
+
     </div>
   );
 };

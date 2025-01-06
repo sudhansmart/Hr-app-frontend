@@ -2,7 +2,7 @@ import React,{useState} from 'react'
 import { Button } from 'react-bootstrap'
 
 function PrescheduleButtons({setForm}) {
-    const [activeButton, setActiveButton] = useState('common');
+    const [activeButton, setActiveButton] = useState('profilesubmission');
 
     const handleClick = (formName) => {
         setActiveButton(formName);
@@ -30,7 +30,7 @@ function PrescheduleButtons({setForm}) {
                 className={activeButton === 't&d' ? 'active-button' : ''}
                 onClick={() => handleClick('t&d')}
             >
-                Turnup & Deficite
+                Turnup & Deficit
             </Button>
            
            

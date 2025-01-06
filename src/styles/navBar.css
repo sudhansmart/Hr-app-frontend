@@ -10,3 +10,15 @@
    color: grey;
    font-weight:500;
 }
+
+.nav-link:focus{
+    border-bottom: 2px solid #1414ec;
+    color: #1414ec;
+}
+
+.skylark-event{
+    width:120px;
+    position: absolute;
+    left : 44% ;
+    top:60%;
+}

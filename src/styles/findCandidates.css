@@ -1,0 +1,93 @@
+/* .findcandidates-main{
+
+} */
+
+
+.searchsection{
+    height: 20%;
+    background-color: #E9EFEC;
+}
+
+.form-control:focus {
+    color: #074f98;
+    box-shadow: none;
+    border: green 2px solid;
+}
+
+.form-floating>label {
+    color:#1c4064;
+}
+
+
+.searchbtnsection{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap:20px
+}
+
+.searchformsec{
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background-color: #E9EFEC;
+      padding: 1%;
+}
+    .results-section{
+        display: flex;
+        /* flex-direction: column; */
+        gap: 10px;
+        padding: 1%;
+        flex-wrap: wrap;
+        
+    }
+  
+    .findcandidate-cardcover{
+        border: rgba(128, 128, 128, 0.345) solid 1px;
+        border-radius: 10px;
+        width: 49%;
+        /* height: 40vh; */
+        box-shadow: 1px 1px 6px 4px #80808026;
+        padding: 2%;
+        background-color: white;
+    }
+   .findcandidate-topsec{
+       padding-bottom: 10px;
+       display: flex;
+       border-bottom: rgba(128, 128, 128, 0.64) solid 2px;
+       
+   }
+    .findcandidate-img{
+        width: 20%;
+        padding: 1%;
+        border: #86D293 solid 2px;
+        border-radius: 5px;
+    }
+
+    .findcandidate-rightcontent{
+          width: 85%;
+          padding: 0% 2%;
+          display: flex;
+          justify-content: space-between;
+    }
+
+    .findcandidate-rightcontent h5{
+          color: blue;
+          font-family: "Nunito", sans-serif;
+          font-optical-sizing: auto;
+          font-weight: 600;
+          font-style: normal;
+    }
+
+    .findcandidate-rightcontent p{
+        font-family: "Nunito", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 600;
+        font-style: normal;
+        margin-bottom: 1px;
+        color: #47663B;
+    }
+
+    .findcandidate-icon{
+        color: #659287;
+    }

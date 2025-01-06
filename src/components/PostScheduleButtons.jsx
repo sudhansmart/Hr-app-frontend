@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { Button } from 'react-bootstrap'
 
 function PostScheduleButtons({setForm}) {
-    const [activeButton, setActiveButton] = useState('common');
+    const [activeButton, setActiveButton] = useState('shortlist');
+    const [adminLoggedIn, setAdminLoggedIn] = useState(localStorage.getItem('adminAuth') === 'true');
 
     const handleClick = (formName) => {
         setActiveButton(formName);
@@ -46,6 +47,13 @@ function PostScheduleButtons({setForm}) {
             >
                 Shortlist On Hold
             </Button>
+           {adminLoggedIn && <Button
+                variant="primary"
+                className={activeButton === 'billing' ? 'active-button' : ''}
+                onClick={() => handleClick('billing')}
+            >
+                Billing
+            </Button>}
            
            
         </div>

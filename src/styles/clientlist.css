@@ -1,0 +1,35 @@
+
+
+.clientlist-main{
+    padding: 2%;
+    border: #D0E8C5 solid 1px;
+    margin: 1%;
+    border-radius: 5px;
+}
+
+.clientlist-table{
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 1px 1px 6px 4px #80808026;
+    margin: 0 auto;
+    text-align: center;
+    font-family: "Krub", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+
+.clientlist-table th{
+    background-color: #7F9F80;
+    color: white;
+    font-family: "Krub", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    padding: 5px;
+    border: white solid 1px;
+}
+
+.clientlist-table td{
+    border: 1px solid #95959587;
+    padding: 0.5rem;
+}

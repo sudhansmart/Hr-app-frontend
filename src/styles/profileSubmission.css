@@ -1,0 +1,15 @@
+.profile-table{
+    border-color: #e3dada;
+}
+
+.profile-table th{
+    padding: 10px;
+    text-align: center;
+    white-space: normal;
+}
+
+.profile-table td{
+    padding: 10px;
+    text-align: center;
+    white-space: normal;
+}

@@ -1,10 +1,11 @@
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect,useRef,useImperativeHandle,forwardRef  } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowDown, faArrowUp, faFilePen, faDownload } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { OverlayTrigger, Tooltip, Modal, Button, Form, Row,Col } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import { decodeToken } from '../utils/decodeToken';
+import * as XLSX from 'xlsx';
 // Tooltip Function
 const TableCellWithTooltip = ({ content, maxLength }) => {
   const renderTooltip = (props) => (
@@ -22,7 +23,7 @@ const TableCellWithTooltip = ({ content, maxLength }) => {
   );
 };
 
-const CommonTable = () => {
+const CommonTable = forwardRef(({ position }, ref)=> {
   const [searchText, setSearchText] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -35,6 +36,8 @@ const CommonTable = () => {
   const [formdata, setFormdata] = useState([]);
   const [recruiterName, setRecruiterName] = useState('');
   const [recruiterId, setRecruiterId] = useState('');
+  const [adminLoggedIn, setAdminLoggedIn] = useState(localStorage.getItem('adminAuth') === 'true');
+  const [selectedRows,setSelectedRows] = useState([])
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -51,7 +54,8 @@ const CommonTable = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
+      const response = await axios.get('http://103.38.50.152/nodejs/candidate/candidatesdata');
+      // const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
       const data = response.data;
       // Flatten the nested data if necessary, depending on the structure
       const flattenedData = data.map(candidate => ({
@@ -64,7 +68,12 @@ const CommonTable = () => {
         _id: candidate._id, // Ensure _id is preserved
       }));
       const filteredData = flattenedData.filter(item => item.formType === "common");
-      setFormdata(filteredData);
+      if(adminLoggedIn){
+        setFormdata(filteredData);
+      } else {
+      const recruiterData =  filteredData.filter((item) => item.recruiterId === recruiterId.toString());
+      setFormdata(recruiterData);
+      }
      
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -72,8 +81,15 @@ const CommonTable = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    
+      fetchData();
+
+    
+  }, [recruiterId]);
+
+  useImperativeHandle(ref, () => ({
+    fetchData,
+  }));
 
 
   const updateCandidate = async (candidateId, updatedData) => {
@@ -84,7 +100,8 @@ const CommonTable = () => {
     
 
     try {
-      const response = await axios.put(`http://localhost:5000/candidate/updateCandidate/${candidateId}`, formData);
+      const response = await axios.put(`http://103.38.50.152/nodejs/candidate/updateCandidate/${candidateId}`, formData);
+      // const response = await axios.put(`http://localhost:5000/candidate/updateCandidate/${candidateId}`, formData);
       if (response.status === 200) {
         console.log('Candidate updated successfully:', response.data);
         alert('Candidate updated successfully');
@@ -110,34 +127,7 @@ const CommonTable = () => {
     }
   };
 
-  const handleDownload = async (name, authId) => {
-    try {
-     
-        const response = await axios.get(`http://localhost:5000/candidate/download/${authId}`, {
-        responseType: 'blob',
-      });
-      
-      if (response.status === 201) {
-        alert("Candidate CV not available. Please upload.");
-      } else {
-        const blob = new Blob([response.data]);
-        const link = document.createElement('a');
-         
-       
-  
-        const fileName = `${name}_CV.pdf`; // Replace whitespace with underscores
-  
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    } catch (error) {
-      console.error('Error downloading CV:', error);
-    }
-  };
-
+ 
 
 
   const openModal = (data) => {
@@ -167,39 +157,118 @@ const CommonTable = () => {
   // Filtered and paginated data
   const filteredData = sortedData.filter((item) => {
     const nameMatch = item.name.toLowerCase().includes(searchText.toLowerCase());
-    const destinationMatch = item.position.toLowerCase().includes(searchText.toLowerCase());
+    const locationMatch = item.location.toLowerCase().includes(searchText.toLowerCase());
+    const emailMatch = item.email.toLowerCase().includes(searchText.toLowerCase());
+    const positionMatch = item.position.toLowerCase().includes(searchText.toLowerCase());
     const clientMatch = item.clientName && item.clientName.toLowerCase().includes(searchText.toLowerCase());
 
-    const dateObject = new Date(item.date);
+    const dateObject = new Date(item.createdDate);
     const formattedDate = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate());
 
-    const startDateWithoutTime = startDate ? new Date(startDate).toISOString().split('T')[0] : null;
-    const endDateWithoutTime = endDate ? new Date(endDate).toISOString().split('T')[0] : null;
-
+    const formatDate = (date) => {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`; // Format as 'YYYY-MM-DD'
+    };
+    
+    // Format the dates to 'YYYY-MM-DD'
+    const formattedDateWithoutTime = formatDate(formattedDate);
+    const startDateWithoutTime = startDate ? formatDate(startDate) : null;
+    const endDateWithoutTime = endDate ? formatDate(endDate) : null;
+  
+    // Perform the comparison using the formatted dates
     const dateMatch =
-      startDateWithoutTime &&
-      endDateWithoutTime &&
-      formattedDate >= new Date(startDateWithoutTime) &&
-      formattedDate <= new Date(endDateWithoutTime);
+      (!startDateWithoutTime || formattedDateWithoutTime >= startDateWithoutTime) &&
+      (!endDateWithoutTime || formattedDateWithoutTime <= endDateWithoutTime);
 
-    return (nameMatch || destinationMatch || clientMatch) && (!startDateWithoutTime || dateMatch);
+    return (nameMatch || locationMatch || emailMatch || positionMatch || clientMatch) && dateMatch;
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   const toggleSortOrder = () => {
     setSortOrder((prevSortOrder) => (prevSortOrder === 'asc' ? 'desc' : 'asc'));
   };
   const openPdfInNewTab = (pdfId) => {
-    console.log("pdfId",pdfId);
+   
     if (pdfId) {
-      const pdfUrl = `http://localhost:5000/candidate/pdfs/${pdfId}`;
+      const pdfUrl = `http://103.38.50.152/nodejs/candidate/pdfs/${pdfId}`;
       window.open(pdfUrl, '_blank');
     }
+  };
+
+  const handleExportExcel = () => {
+    // Filter the data to include only selected rows
+    const selectedData = filteredData.filter(item => selectedRows.includes(item._id));
+    
+    if (selectedData.length === 0) {
+      alert("Please select at least one row to export.");
+      return;
+    }
+  
+    // Define the desired column order and their corresponding keys in data
+    const columnOrder = [
+      { label: 'Date', key: 'createdDate' },
+      { label: 'Name', key: 'name' },
+      { label: 'Email', key: 'email' },
+      { label: 'Mobile Number', key: 'mobileNo' },
+      { label: 'Location', key: 'location' },
+      { label: 'Qualification', key: 'qualification' },
+      { label: 'Client Name', key: 'clientName' },
+      { label: 'Position', key: 'position' },
+      { label: 'Current Company', key: 'currentCompany' },
+      { label: 'Total Experience', key: 'overallExperience' },
+      { label: 'Relevant Experience', key: 'relevantExperience' },
+      { label: 'Current CTC', key: 'currentCTC' },
+      { label: 'Expected CTC', key: 'expectedCTC' },
+      { label: 'Notice Period', key: 'noticePeriod' },
+      { label: 'InterviewMode', key: 'interviewMode' },
+      { label: 'Remarks', key: 'remarksFirstRecruiter' }
+    ];
+  
+    // Map selected data to the specified columns
+    const exportData = selectedData.map(item => {
+      const rowData = {};
+      columnOrder.forEach(col => {
+        rowData[col.label] = item[col.key] || ''; // Assign data or empty string if undefined
+      });
+      return rowData;
+    });
+  
+   
+  
+    // Create a worksheet from the filtered and ordered data
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+  
+    // Get headers and insert them manually to enable bold styling
+    const headers = Object.keys(exportData[0]);
+    XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: "A1" });
+  
+    // Create a new workbook and append the worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Candidates');
+  
+    // Export the workbook as an Excel file
+    XLSX.writeFile(workbook, 'selected_candidates.xlsx');
+  };
+  
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+  
+  
+
+  const handleCheckBoxChange = (id) => {
+    setSelectedRows(prevRows => prevRows.includes(id) ? prevRows.filter(rowId => rowId !== id) : [...prevRows, id]);
+    
   };
 
   return (
@@ -207,6 +276,9 @@ const CommonTable = () => {
       <div className="container mt-4 " style={{ height: '100vh' }}>
         <div className="col-md-12">
           <h4 className="pt-3 pb-4 text-center font-bold font-up deep-purple-text">Added Candidates</h4>
+          {adminLoggedIn &&   <div className="text-end">
+           <Button variant='success' className='mb-3 text-align-end' onClick={handleExportExcel} disabled={selectedRows.length === 0}>Export to Excel</Button>
+           </div>}
           <div className="input-group mb-3">
             <input
               type="text"
@@ -234,11 +306,13 @@ const CommonTable = () => {
           </div>
         </div>
 
-        <div className='datatable overflow-auto'>
+        <div className='datatable overflow-auto' style={{ overflowY: "scroll" ,maxHeight: "65%"}}>
           <table className="table table-striped table-bordered scrollable-table">
-            <thead className='align-text-bottom text-center'>
+            <thead className='align-text-bottom text-center' style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
               <tr>
+              {adminLoggedIn && <th></th>} 
                 <th>SL.No</th>
+                {adminLoggedIn && <th>Recruiter Name</th>}
                 <th>
                   Date
                   <button className="btn btn-link" onClick={toggleSortOrder}>
@@ -267,7 +341,9 @@ const CommonTable = () => {
             <tbody>
               {currentItems.map((item, index) => (
                 <tr key={index} className="align-text-bottom text-center">
+                   {adminLoggedIn && <td><input type="checkbox" onChange={()=>handleCheckBoxChange(item._id)} checked={selectedRows.includes(item._id)} /></td>}
                   <th scope="row">{index + 1}</th>
+                  {adminLoggedIn && <td>{item.recruiterName}</td>}
                   <td>{new Date(item.createdDate).toLocaleDateString('en-GB')}</td>
                   <td>{item.name}</td>
                   <td>{item.email}</td>
@@ -462,20 +538,26 @@ const CommonTable = () => {
           </Modal>
         </div>
 
-        <nav className="d-flex justify-content-center">
-          <ul className="pagination">
-            {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }).map((_, index) => (
-              <li key={index} className={`page-item ${index + 1 === currentPage ? 'active' : ''}`}>
-                <button className="page-link" onClick={() => paginate(index + 1)}>
-                  {index + 1}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="d-flex justify-content-center align-items-center mt-3">
+          <button
+            className="btn btn-primary"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span className="mx-3">Page {currentPage} of {totalPages}</span>
+          <button
+            className="btn btn-primary"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </>
   );
-};
+});
 
 export default CommonTable;

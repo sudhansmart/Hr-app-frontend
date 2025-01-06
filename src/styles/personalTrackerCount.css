@@ -1,0 +1,102 @@
+
+
+.personalTrackerCount-main{
+    padding: 2%;
+    margin: 1%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    color: rgb(42, 53, 71);
+    
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 4px;
+    border: #D0E8C5 solid 1px;
+}
+.personalTrackerCount-main h4{
+    width: 100%;
+    text-align: start;
+    font-family: "Nunito", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    color: #608BC1;
+}
+
+.number-display{
+   margin-bottom: 2%;
+   align-content: center; 
+   width: 60%;
+   border-radius: 5px;
+   padding: 1%;
+   display: flex;
+   box-shadow: 1px 1px 6px 4px #80808026;
+}
+
+.total-number{
+    width: 50%;
+    text-align: center;
+    padding: 1%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    border-right: 3px solid #244ceb82;
+}
+
+.daily-number{
+    width: 50%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.digit{
+    font-size: 40px;
+    font-weight: 900;
+    font-family: "Signika", sans-serif;
+    color: grey;
+}
+
+.texttitle{
+    font-size: 20px;
+    font-weight: 800;
+    font-family: "Nunito", sans-serif;
+    color: #006bd6;
+}
+.trackercounttable-sec{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.trackercount-table{
+    width: 80%;
+    border: rgba(111, 110, 110, 0.63) solid 2px;
+
+}
+
+.trackercount-table th{
+    text-align: center;
+    background-color: #006bd6;
+    color: white;
+    font-family: "Krub", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    padding: 5px;
+    border: white solid 1px;
+}
+
+.trackercount-table td{
+    text-align: center;
+    font-family: "Krub", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    padding: 5px;
+    border: rgba(111, 110, 110, 0.63) solid 1px;
+}

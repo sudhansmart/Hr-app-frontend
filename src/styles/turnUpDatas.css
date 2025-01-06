@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Krub:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Oxanium:wght@200..800&family=Rokkitt:ital,wght@0,100..900;1,100..900&display=swap');
+
+.turnup-main{
+    height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.turnup-table{
+   
+    height: 50%;
+    /* border: 2px solid grey; */
+    border-collapse: collapse;
+    box-shadow: 1px 1px 6px 4px #80808026;
+    margin: 0 auto;
+    text-align: center;
+    font-family: "Krub", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.turnup-table tr{
+    height: 60px;
+}
+
+.turnup-table th{
+   
+    border: 1px solid #95959587;
+    background-color: #DFF2EB;
+    color: rgb(42, 53, 71);
+    box-shadow: rgba(145, 158, 171, 0.3) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px;
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 4px;
+}
+
+.turnup-table td{
+    border: 1px solid #95959587;
+    background-color: #B9E5E8;
+    color: rgb(42, 53, 71);
+    box-shadow: rgba(145, 158, 171, 0.3) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px;
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 4px;
+    font-weight: 700;
+}

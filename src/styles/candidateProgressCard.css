@@ -1,0 +1,234 @@
+
+
+
+.progresscards-main{
+    width: 100%;
+    height: 100vh;
+    background: hsla(0, 33%, 99%, 1);
+
+background: linear-gradient(90deg, hsla(0, 33%, 99%, 1) 10%, hsla(200, 8%, 93%, 1) 100%);
+
+background: -moz-linear-gradient(90deg, hsla(0, 33%, 99%, 1) 10%, hsla(200, 8%, 93%, 1) 100%);
+
+background: -webkit-linear-gradient(90deg, hsla(0, 33%, 99%, 1) 10%, hsla(200, 8%, 93%, 1) 100%);
+
+filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#FDFBFB", endColorstr="#EBEDEE", GradientType=1 );
+}
+
+.progress-searchsec{
+    height: 20vh;
+    align-content: center;
+    padding: 2%;
+   
+}
+
+.progress-searchbar{
+    width: 100%;
+    border-bottom: 2px solid #62825D !important;
+    border: none;
+}
+
+.progress-searchbar:focus-visible{
+    border: #FF7F3E solid 2px !important;
+   
+}
+
+.progress-bottomsec{
+    display: flex;
+    flex-wrap: wrap;
+   
+    padding: 2%;
+    gap: 20px;
+}
+.progresscard-cover{
+    width: 32%;
+    height: 40vh;
+    background-color: white;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    border: rgba(128, 128, 128, 0.795) solid 1px;
+    box-shadow: grey 1px 1px 5px 1px;
+}
+
+.progress-topsec{
+    display: flex;
+    justify-content: space-between;
+}
+
+.progress-name{
+    color: #62825D;
+    
+}
+
+.progress-client{
+    color: #608BC1;
+    font-size: 16px;
+}
+
+.progress-role{
+    color: #133E87;
+    font-size: 16px;
+}
+.progress-location{
+    color: #FF7F3E;
+    font-size: 14px;
+}
+
+.progress-recruitername{
+    color: grey;
+    font-size: 16px;
+}
+
+/* CSS for Cycle  */
+
+
+
+.progress-bottomsec1 {
+	/* background-color: var(--bg); */
+	color: grey;
+	display: flex;
+	font: 1em/1.5 sans-serif;
+	height: 100vh;
+	transition:
+		background-color 0.3s,
+		color 0.3s;
+}
+.bike {
+	display: block;
+	margin: auto;
+	width: 10em;
+	height: auto;
+}
+.bike__body,
+.bike__front,
+.bike__handlebars,
+.bike__pedals,
+.bike__pedals-spin,
+.bike__seat,
+.bike__spokes,
+.bike__spokes-spin,
+.bike__tire {
+	animation: bikeBody 3s ease-in-out infinite;
+	stroke: #0302fd;
+	transition: stroke 0.3s;
+}
+.bike__front {
+	animation-name: bikeFront;
+}
+.bike__handlebars {
+	animation-name: bikeHandlebars;
+}
+.bike__pedals {
+	animation-name: bikePedals;
+}
+.bike__pedals-spin {
+	animation-name: bikePedalsSpin;
+}
+.bike__seat {
+	animation-name: bikeSeat;
+}
+.bike__spokes,
+.bike__tire {
+	stroke: currentColor;
+}
+.bike__spokes {
+	animation-name: bikeSpokes;
+}
+.bike__spokes-spin {
+	animation-name: bikeSpokesSpin;
+}
+.bike__tire {
+	animation-name: bikeTire;
+}
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: hsl(var(--hue),90%,10%);
+		--fg: hsl(var(--hue),90%,90%);
+	}
+}
+
+/* Animations */
+@keyframes bikeBody {
+	from { stroke-dashoffset: 79; }
+	33%,
+	67% { stroke-dashoffset: 0; }
+	to { stroke-dashoffset: -79; }
+}
+@keyframes bikeFront {
+	from { stroke-dashoffset: 19; }
+	33%,
+	67% { stroke-dashoffset: 0; }
+	to { stroke-dashoffset: -19; }
+}
+@keyframes bikeHandlebars {
+	from { stroke-dashoffset: 10; }
+	33%,
+	67% { stroke-dashoffset: 0; }
+	to { stroke-dashoffset: -10; }
+}
+@keyframes bikePedals {
+	from {
+		animation-timing-function: ease-in;
+		stroke-dashoffset: -25.133;
+	}
+	33%,
+	67% {
+		animation-timing-function: ease-out;
+		stroke-dashoffset: -21.991;
+	}
+	to {
+		stroke-dashoffset: -25.133;
+	}
+}
+@keyframes bikePedalsSpin {
+	from { transform: rotate(0.1875turn); }
+	to { transform: rotate(3.1875turn); }
+}
+@keyframes bikeSeat {
+	from { stroke-dashoffset: 5; }
+	33%,
+	67% { stroke-dashoffset: 0; }
+	to { stroke-dashoffset: -5; }
+}
+@keyframes bikeSpokes {
+	from {
+		animation-timing-function: ease-in;
+		stroke-dashoffset: -31.416;
+	}
+	33%,
+	67% {
+		animation-timing-function: ease-out;
+		stroke-dashoffset: -23.562;
+	}
+	to {
+		stroke-dashoffset: -31.416;
+	}
+}
+@keyframes bikeSpokesSpin {
+	from { transform: rotate(0); }
+	to { transform: rotate(3turn); }
+}
+@keyframes bikeTire {
+	from {
+		animation-timing-function: ease-in;
+		stroke-dashoffset: 56.549;
+		transform: rotate(0);
+	}
+	33% {
+		stroke-dashoffset: 0;
+		transform: rotate(0.33turn);
+	}
+	67% {
+		animation-timing-function: ease-out;
+		stroke-dashoffset: 0;
+		transform: rotate(0.67turn);
+	}
+	to {
+		stroke-dashoffset: -56.549;
+		transform: rotate(1turn);
+	}
+}

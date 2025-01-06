@@ -7,8 +7,7 @@
     width: 100%;
     background-color: #c9d6d7ab;
     display: flex;
-   flex-direction: column;
-   
+    flex-direction: column;
     align-items: center;
     box-shadow: 3px 7px 8px 0px #808080a1;
 }

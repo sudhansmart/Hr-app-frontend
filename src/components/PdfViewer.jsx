@@ -14,7 +14,7 @@ function PdfViewer({pdfId}) {
     <div className='d-flex justify-content-center'>
       {pdfId && (
         <iframe
-          src={`http://localhost:5000/candidate/pdfs/${pdfId}`}
+          src={`http://103.38.50.152/nodejs/candidate/pdfs/${pdfId}`}
           width= '300'
            height='400'
           title="PDF"

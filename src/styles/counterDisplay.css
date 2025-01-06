@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Syne:wght@400..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Signika:wght@300..700&display=swap');
+.counterdisplay-main{
+    height: fit-content;
+    margin: 2%;
+    border-radius: 5px;
+    border: 1px solid #95959587;
+    background-color: #f5f9fc;
+    color: rgb(42, 53, 71);
+    box-shadow: rgba(145, 158, 171, 0.3) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px;
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 1%;
+}
+
+.countercard{
+    height: 190px;
+    width: 20%;
+    border-right : 3px solid #cf242482;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.countercard:last-child{
+    border-right : none;
+}
+
+.countercard h4{
+    text-align: center;
+    font-size: 18px;
+    color: #006bd6;
+    font-family: "Syne", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.monthly{
+    text-align: center;
+    font-size: 30px;
+    color: #006bd6;
+    font-family: "Nunito", system-ui;
+  font-optical-sizing: auto;
+  font-weight:700;
+  font-style: normal;
+
+}
+.daily{
+    text-align: center;
+    font-size: 15px;
+    color: #1bb9d1;
+}
+

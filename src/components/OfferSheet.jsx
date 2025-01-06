@@ -1,13 +1,31 @@
 import React, { useState,useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowDown, faArrowUp,  faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { Form } from 'react-bootstrap';
+import { Form,OverlayTrigger, Tooltip,Col } from 'react-bootstrap';
 import { FaPencilAlt } from "react-icons/fa";
 import axios from 'axios';
 import { decodeToken } from '../utils/decodeToken';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 
-const OfferSheet = () => {
+const TableCellWithTooltip = ({ content, maxLength }) => {
+  const renderTooltip = (props) => (
+    <Tooltip id="tooltip-top" {...props}>
+      {content}
+    </Tooltip>
+  );
+
+  const truncatedContent = content.length > maxLength ? `${content.slice(0, maxLength)}...` : content;
+
+  return (
+    <OverlayTrigger placement="top" overlay={renderTooltip} delay={{ show: 250, hide: 400 }}>
+      <td>{truncatedContent}</td>
+    </OverlayTrigger>
+  );
+};
+
+const OfferSheet = ({loadData}) => {
   const [searchText, setSearchText] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -18,11 +36,14 @@ const OfferSheet = () => {
   const [recruiterId, setRecruiterId] = useState('');
   const [editingRowId, setEditingRowId] = useState(null);
   const [adminLoggedIn, setAdminLoggedIn] = useState(localStorage.getItem('adminAuth') === 'true');
+  const [status,setStatus] = useState('nill');
+  const [finalItems, setFinalItems] = useState([]);
 
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
+      const response = await axios.get('http://103.38.50.152/nodejs/candidate/candidatesdata');
+      // const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
       const data = response.data;
 
       // Flatten the nested data if necessary
@@ -33,6 +54,7 @@ const OfferSheet = () => {
         ...candidate.wipro1,
         ...candidate.wipro2,
         ...candidate.accenture,
+        ...candidate.other,
         _id: candidate._id, // Ensure _id is preserved
       }));
 
@@ -47,7 +69,8 @@ const OfferSheet = () => {
 
   const fetchAllData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
+      const response = await axios.get('http://103.38.50.152/nodejs/candidate/candidatesdata');
+      // const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
 
       const data = response.data;
 
@@ -59,6 +82,7 @@ const OfferSheet = () => {
         ...candidate.wipro1,
         ...candidate.wipro2,
         ...candidate.accenture,
+        ...candidate.other,
         _id: candidate._id, // Ensure _id is preserved
       }));     
       const filteredData = flattenedData.filter(item => item.offerStatus === "released");
@@ -106,7 +130,8 @@ const OfferSheet = () => {
 
     // Make an API call to update the interview status in the backend 
     try {
-      const response = axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
+      const response = axios.put(`http://103.38.50.152/nodejs/candidate/updateinterviewfinalstatus/${id}`, {
+      // const response = axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
        
         offerReleasedDate: file.offerReleasedDate,
         offeredCTC: file.offeredCTC,
@@ -144,11 +169,13 @@ const OfferSheet = () => {
 
     try {
       // Make an API call to update the interview status in the backend
-      const response = await axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
+      const response = await axios.put(`http://103.38.50.152/nodejs/candidate/updateinterviewfinalstatus/${id}`, {
+      // const response = await axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
         joinedStatus: value,
       });
   
       if (response.status === 200) {
+        loadData();
         console.log('Status updated successfully:', response.data);
       } else {
         console.log('Failed to update status');
@@ -166,44 +193,112 @@ const OfferSheet = () => {
   };
 
   // Sort and filter data
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null; // Return null if the date string is missing
+    const [day, month, year] = dateStr.split('-').map(Number);
+    if (!day || !month || !year) return null; // Return null if date is invalid
+    return new Date(year, month - 1, day); // Convert to a Date object
+  };
+  
   const sortedData = formdata.sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
+    const dateA = parseDate(a.offerReleasedDate);
+    const dateB = parseDate(b.offerReleasedDate);
+  
+    // Handle cases where date is missing
+    if (!dateA && !dateB) return 0; // Both dates are missing, consider equal
+    if (!dateA) return sortOrder === 'asc' ? 1 : -1; // Missing date goes last
+    if (!dateB) return sortOrder === 'asc' ? -1 : 1; // Missing date goes last
+  
+    // Perform the sorting based on the parsed dates
     return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
   });
+  
+  
 
   const filteredData = sortedData.filter((item) => {
     const nameMatch = item.name?.toLowerCase().includes(searchText.toLowerCase());
     const roleMatch = item.role?.toLowerCase().includes(searchText.toLowerCase());
+    const recruiterMatch = item.recruiterName?.toLowerCase().includes(searchText.toLowerCase());
     const positionMatch = item.position?.toLowerCase().includes(searchText.toLowerCase());
     const clientMatch = item.clientName?.toLowerCase().includes(searchText.toLowerCase());
+    const locationMatch = item.location?.toLowerCase().includes(searchText.toLowerCase());
+    const emailMatch = item.email?.toLowerCase().includes(searchText.toLowerCase());
 
-
-    const dateObject = new Date(item.date);
+    const dateObject = new Date(item.offerReleasedDate);
     const formattedDate = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate());
 
-    const startDateWithoutTime = startDate ? new Date(startDate).toISOString().split('T')[0] : null;
-    const endDateWithoutTime = endDate ? new Date(endDate).toISOString().split('T')[0] : null;
+const formatDate = (date) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`; // Format as 'YYYY-MM-DD'
+};
 
-    const dateMatch =
-      startDateWithoutTime &&
-      endDateWithoutTime &&
-      formattedDate >= new Date(startDateWithoutTime) &&
-      formattedDate <= new Date(endDateWithoutTime);
+// Format the dates to 'YYYY-MM-DD'
+const formattedDateWithoutTime = formatDate(formattedDate);
+const startDateWithoutTime = startDate ? formatDate(startDate) : null;
+const endDateWithoutTime = endDate ? formatDate(endDate) : null;
 
-    return (nameMatch || roleMatch || positionMatch || clientMatch) && (!startDateWithoutTime || dateMatch);
+// Perform the comparison using the formatted dates
+const dateMatch =
+  (!startDateWithoutTime || formattedDateWithoutTime >= startDateWithoutTime) &&
+  (!endDateWithoutTime || formattedDateWithoutTime <= endDateWithoutTime);
+return (nameMatch || recruiterMatch || locationMatch || emailMatch || clientMatch || roleMatch || positionMatch) && dateMatch;
+
   });
 
+
+  useEffect(() => {
+    let filData;
+        console.log("inside : ",filteredData)
+    if (status === "nill") {
+      filData = filteredData.filter(
+        (item) =>
+         item.offerStatus === "released" && item.joinedStatus  !== "drop" &&  item.joinedStatus !== 'joined' 
+      );
+    } else {
+      filData = filteredData.filter(
+        (item) => item.joinedStatus === status
+      );
+    }
+  
+    setFinalItems(filData);
+  }, [status,formdata]);
+
+  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+  const showItems = finalItems.slice(indexOfFirstItem, indexOfLastItem);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const totalPages = Math.ceil(finalItems.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+ 
 
   return (
-    <div className="container mt-4" style={{ height: '100vh' }}>
+    <div className=" mt-4" style={{ height: '100vh' }}>
       <div className="col-md-12">
         <h4 className="pt-3 pb-4 text-center font-bold font-up deep-purple-text">Offer Received Sheet</h4>
+        <div className="mb-3 d-flex justify-content-end" >
+          <Col md={2}>
+          <Form.Select size="sm" 
+                         
+                          defaultValue={status}
+                          onChange={(e) => setStatus(e.target.value)}>
+                        
+                        <option value="nill">Please Select</option>
+                        <option value="joined">Joined</option>
+                        <option value="drop">Dropped</option>
+                        
+                       </Form.Select>
+            </Col>
+        </div>
         <div className="input-group mb-3">
           <input
             type="text"
@@ -231,17 +326,18 @@ const OfferSheet = () => {
         </div>
       </div>
 
-      <div className="datatable overflow-auto">
+      <div className="datatable overflow-auto"   style={{ overflowY: "scroll" ,maxHeight: "65%"}}>
         <table className="table table-striped table-bordered scrollable-table">
-          <thead className="align-text-bottom text-center">
+          <thead className="align-text-bottom text-center" style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
             <tr>
               <th>SL.No</th>
-              <th>
+              {adminLoggedIn && <th className="rec-name">Recruiter Name</th>}
+              {/* <th>
                 Offer Release Date
                 <button className="btn btn-link" onClick={toggleSortOrder}>
                   {sortOrder === 'asc' ? <FontAwesomeIcon icon={faArrowUp} style={{ fontSize: '15px' }} /> : <FontAwesomeIcon style={{ fontSize: '15px' }} icon={faArrowDown} />}
                 </button>
-              </th>
+              </th> */}
               <th>Joining Status</th>
               <th>Name</th>
               <th>Mobile Number</th>
@@ -258,16 +354,17 @@ const OfferSheet = () => {
           </thead>
 
           <tbody>
-            {currentItems.map((item, index) => (
+            {showItems.map((item, index) => (
               <tr key={item._id} className="align-text-bottom text-center">
-                <th scope="row">{index + 1}</th>
-                {adminLoggedIn?  <td> {editingRowId === item._id ? (
-                    <>  <input
-                      type="text"
-                      name="offerReleasedDate"  
-                      value={item.offerReleasedDate}
-                      onChange={(e) => handleInputChange(e, item._id)}
-                    /> 
+                  <th scope="row">{indexOfFirstItem + index + 1}</th>
+                {adminLoggedIn && <td>{item.recruiterName}</td>}
+                {/* {adminLoggedIn?  <td> {editingRowId === item._id ? (
+                    <> 
+                     <DatePicker
+                      selected={item.offerReleasedDate ? new Date(item.offerReleasedDate) : undefined}
+                        onChange={(date) => handleDateChange(date, item._id)}
+                        dateFormat="dd-MM-yyyy"
+                      />
                     <FontAwesomeIcon
                       icon={faCheck}
                       style={{ fontSize: '18px', cursor: 'pointer' }}
@@ -280,16 +377,16 @@ const OfferSheet = () => {
                     />
                   </>
                   ) : (
-                  <p> { item.offerReleasedDate  }<FaPencilAlt style={{ cursor: 'pointer' }} onClick={() => handleEditClick(item._id)} /> </p>
+                  <p> {   <td>{new Date(item.offerReleasedDate).toLocaleDateString('en-GB')}</td>  } <FaPencilAlt style={{ cursor: 'pointer' }} onClick={() => handleEditClick(item._id)} /> </p>
                   )}</td>    :  
-                  <td >{item.offerReleasedDate}</td>} 
+                  <td>{new Date(item.offerReleasedDate).toLocaleDateString('en-GB')}</td>}  */}
                    {adminLoggedIn?
                    <td> <Form.Select size="sm" style={{ width: '150px' }}
                            name='joinedStatus' defaultValue={item.joinedStatus} onChange={(e) => handleStatusChange(e, item._id)}>
                         <option value="nill">Please Select</option>
                         <option value="joined">Joined</option>
                         <option value="drop">Dropped</option>
-                        <option value="hold">On Hold</option>
+                       
                        </Form.Select>
                 </td> :
                 <td>{item.joinedStatus?item.joinedStatus.replace(/\b\w/g, l => l.toUpperCase()):"-"}</td>}
@@ -351,7 +448,7 @@ const OfferSheet = () => {
                   <td>{item.billValue}</td>} 
                    {adminLoggedIn?  <td> {editingRowId === item._id ? (
                     <>  <input
-                      type="text"
+                      type="date"
                       name="expectedDOJ"  
                       value={item.expectedDOJ}
                       onChange={(e) => handleInputChange(e, item._id)}
@@ -368,27 +465,34 @@ const OfferSheet = () => {
                     />
                   </>
                   ) : (
-                  <p> { item.expectedDOJ  }<FaPencilAlt style={{ cursor: 'pointer' }} onClick={() => handleEditClick(item._id)} /> </p>
+                  <p> {new Date(item.expectedDOJ).toLocaleDateString('en-GB')}<FaPencilAlt style={{ cursor: 'pointer' }} onClick={() => handleEditClick(item._id)} /> </p>
                   )}</td>    :  
-                  <td>{item.expectedDOJ}</td>} 
-                <td>{item.remarks}</td>  
+                  <td>{new Date(item.expectedDOJ).toLocaleDateString('en-GB')} </td>} 
+                <td><TableCellWithTooltip content={item.remarks? item.remarks : 'N/A'}/></td>  
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <div className="pagination justify-content-center">
-        <ul className="pagination">
-          {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }, (_, index) => (
-            <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-              <button onClick={() => paginate(index + 1)} className="page-link">
-                {index + 1}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <div className="d-flex justify-content-center align-items-center mt-3">
+          <button
+            className="btn btn-primary"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span className="mx-3">Page {currentPage} of {totalPages}</span>
+          <button
+            className="btn btn-primary"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+
     </div>
   );
 };

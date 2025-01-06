@@ -8,11 +8,12 @@ import * as yup from 'yup';
 import { decodeToken } from '../utils/decodeToken';
 import axios from 'axios';
 
-function CommonForm() {
+function CommonForm({onFormSubmit}) {
  
   const fileInputRef = useRef(null);
   const [recruiterName, setRecruiterName] = useState('');
   const [recruiterId, setRecruiterId] = useState('');
+  const [btnLoading, setBtnLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -39,16 +40,18 @@ function CommonForm() {
     clientName: yup.string().required('Client Name is required'),
     role: yup.string().required('Position is required'),
     currentCompany: yup.string().required('Current Company is required'),
-    overAllExp: yup
-      .string()
-      .matches(/^\d+$/, 'Overall experience must be a number')
-      .required('Overall Experience is required'),
-    relevantExp: yup
-      .string()
-      .matches(/^\d+$/, 'Relevant experience must be a number')
-      .required('Relevant Experience is required'),
-    currentCtc: yup.string().required('Current CTC is required'),
-    expectedCtc: yup.string().required('Expected CTC is required'),
+    overAllExp: yup.string()
+    .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+    .required('Overall Experience is required'),
+    relevantExp: yup.string()
+    .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+    .required('Relevant Experience is required'),
+    currentCtc: yup.string()
+    .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+    .required('Current CTC is required'),
+    expectedCtc: yup.string()
+    .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+    .required('Expected CTC is required'),
     noticePeriod: yup.string().required('Notice Period is required'),
     interviewMode: yup.string().required('Interview Mode is required'),
     file: yup
@@ -68,6 +71,7 @@ function CommonForm() {
   });
 
   const handleSubmit = async (values, { resetForm }) => {
+    setBtnLoading(true);
     try {
       const formData = new FormData();
       Object.keys(values).forEach((key) => formData.append(key, values[key]));
@@ -77,8 +81,8 @@ function CommonForm() {
       
 
       console.log('Form Data:', Object.fromEntries(formData));
-
-      const response = await axios.post('http://localhost:5000/candidate/add', formData, {
+      const response = await axios.post('http://103.38.50.152/nodejs/candidate/add', formData, {
+      // const response = await axios.post('http://localhost:5000/candidate/add', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -87,6 +91,8 @@ function CommonForm() {
         alert('Your data has been saved successfully!');
          resetForm();
          fileInputRef.current.value = '';
+         onFormSubmit()
+         setBtnLoading(false);
       }
 
       console.log('API Response:', response.data);
@@ -344,7 +350,7 @@ function CommonForm() {
               </Form.Group>
             </Row>
 
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled ={btnLoading}>Submit</Button>
           </Form>
         )}
       </Formik>

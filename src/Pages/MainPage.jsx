@@ -1,7 +1,10 @@
 import React from 'react'
 import '../styles/mainPage.css'
 import LoginForm from '../components/LoginForm'
-import logo from '../assets/images/logo.webp'
+import logo from '../assets/images/logo-main.png'
+import RandomQuote from '../components/RandomQuote'
+
+
 
 
 function MainPage({setAuthToken}) {
@@ -13,8 +16,10 @@ function MainPage({setAuthToken}) {
             </div>
         </div>
         <div className="main-rightsec">
+               
               <div className="logincover">
-                       <LoginForm setAuthToken={setAuthToken}/>
+                        <RandomQuote/>
+                        <LoginForm setAuthToken={setAuthToken}/>
               </div>
         </div>
     </div>

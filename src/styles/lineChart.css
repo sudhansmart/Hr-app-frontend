@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&family=Rokkitt:ital,wght@0,100..900;1,100..900&display=swap');
+
+.linegraph-main{
+    width: 100%;
+   
+}
+
+.graphtop{
+    background-color: white;
+    width: 100%;
+}
+.graphtop h5 {
+    padding-top:10px;
+    text-align: center;
+    font-family: "Oxanium", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    color: green;
+}
+.filteroption{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2%;
+}
+.zone{
+    border: 2px solid grey;
+    text-align: center;
+    padding: 2%;
+    font-family: "Oxanium", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    border-radius: 5px;
+    color: white;
+}

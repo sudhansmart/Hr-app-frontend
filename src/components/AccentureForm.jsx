@@ -10,11 +10,11 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { decodeToken } from '../utils/decodeToken';
 
-function AccentureForm() {
+function AccentureForm({onFormSubmit}) {
   const fileInputRef = useRef(null);
   const [recruiterName, setRecruiterName] = useState('');
-
   const [recruiterId, setRecruiterId] = useState('');
+  const [btnLoading, setBtnLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -30,13 +30,11 @@ function AccentureForm() {
 
   const schema = yup.object().shape({
 
-
-
   cl: yup.string().required('CL is required'),
   cid: yup.string().required('CID is required'),
   name: yup.string().required('Name is required'),
   gender: yup.string().required('Gender is required'),
-  email: yup.string().required('Email is required'),
+  email: yup.string().email('Invalid email').required('Email is required'),
   phoneNumber: yup
     .string()
     .matches(/^\d{10}$/, 'Phone number must be 10 digits')
@@ -44,16 +42,18 @@ function AccentureForm() {
   role: yup.string().required('Role is required'),
   currentCompany: yup.string().required('Current Company is required'),
   location: yup.string().required('Current Location is required'),
-  overAllExp: yup
-      .string()
-      .matches(/^\d+$/, 'Overall experience must be a number')
-      .required('Overall Experience is required'),
-    relevantExp: yup
-      .string()
-      .matches(/^\d+$/, 'Relevant experience must be a number')
-      .required('Relevant Experience is required'),
-  currentCtc: yup.string().required('Current CTC is required'),
-  expectedCtc: yup.string().required('Expected CTC is required'),
+  overAllExp: yup.string()
+  .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+  .required('Overall Experience is required'),
+  relevantExp: yup.string()
+  .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+  .required('Relevant Experience is required'),
+  currentCtc: yup.string()
+  .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+  .required('Current CTC is required'),
+  expectedCtc: yup.string()
+  .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+  .required('Expected CTC is required'),
   noticePeriod: yup.string().required('Notice Period is required'), 
   primarySkill: yup.string().required('primarySkill  is required'),
   fatherName: yup.string().required('Father Name is required'),
@@ -63,6 +63,7 @@ function AccentureForm() {
   });
 
   const handleSubmit = async (values, { resetForm }) => {
+    setBtnLoading(true);
     try {
       const formData = new FormData();
 
@@ -115,7 +116,8 @@ function AccentureForm() {
      
      
       console.log('Form Data:', Object.fromEntries(formData));
-      const response = await axios.post('http://localhost:5000/candidate/add', formData, {
+      const response = await axios.post('http://103.38.50.152/nodejs/candidate/add', formData, {
+      // const response = await axios.post('http://localhost:5000/candidate/add', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -124,6 +126,8 @@ function AccentureForm() {
         alert('Your data has been saved successfully!');
          resetForm();
          fileInputRef.current.value = '';
+         onFormSubmit();
+         setBtnLoading(false);
       }
     } catch (error) {
       console.error('App.Form API Error:', error);
@@ -290,10 +294,7 @@ function AccentureForm() {
                name="location"
                value={values.location}
                onChange={handleChange}
-               onBlur={(e) => {
-                const { name, value } = e.target;
-                handleChange({ target: { name, value: value.toUpperCase() } });
-              }}
+              
                isValid={touched.location && !errors.location}
                isInvalid={touched.location && !!errors.location}
              /> 
@@ -309,10 +310,7 @@ function AccentureForm() {
                name="overAllExp"
                value={values.overAllExp}
                onChange={handleChange}
-               onBlur={(e) => {
-                const { name, value } = e.target;
-                handleChange({ target: { name, value: value.toUpperCase() } });
-              }}
+               
                isValid={touched.overAllExp && !errors.overAllExp}
                isInvalid={touched.overAllExp && !!errors.overAllExp}
              />
@@ -328,10 +326,7 @@ function AccentureForm() {
                name="relevantExp"
                value={values.relevantExp}
                onChange={handleChange}
-               onBlur={(e) => {
-                const { name, value } = e.target;
-                handleChange({ target: { name, value: value.toUpperCase() } });
-              }}
+              
                isValid={touched.relevantExp && !errors.relevantExp}
                isInvalid={touched.relevantExp && !!errors.relevantExp}
              />
@@ -361,7 +356,7 @@ function AccentureForm() {
                placeholder=""
                name="expectedCtc"
                value={values.expectedCtc}
-              onChange={handleChange}
+               onChange={handleChange}
                isValid={touched.expectedCtc && !errors.expectedCtc}
                isInvalid={touched.expectedCtc && !!errors.expectedCtc}
              />
@@ -376,7 +371,7 @@ function AccentureForm() {
                placeholder=""
                name="noticePeriod"
                value={values.noticePeriod}
-              onChange={handleChange}
+               onChange={handleChange}
                isValid={touched.noticePeriod && !errors.noticePeriod}
                isInvalid={touched.noticePeriod && !!errors.noticePeriod}
              />
@@ -442,10 +437,6 @@ function AccentureForm() {
                name="address"
                value={values.address}
                onChange={handleChange}
-               onBlur={(e) => {
-                const { name, value } = e.target;
-                handleChange({ target: { name, value: value.toUpperCase() } });
-              }}
                isValid={touched.address && !errors.address}
                isInvalid={touched.address && !!errors.address}
              />
@@ -511,7 +502,7 @@ function AccentureForm() {
               <Button variant="secondary" onClick={() => {
                                    resetForm();
                                fileInputRef.current.value = '';}} >Reset All</Button>
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={btnLoading}>Submit</Button>
             </div>
           </Row>
         </Form>

@@ -26,8 +26,8 @@ function LoginForm({setAuthToken}) {
     const handleLogin = async (e) => {
         e.preventDefault()
        try {
-         
-         const response =  await axios.post("http://localhost:5000/login/userin", data)
+        const response =  await axios.post("http://103.38.50.152/nodejs/login/userin", data)
+        //  const response =  await axios.post("http://localhost:5000/login/userin", data)
          if(response.status === 200){
            setError(response.data.message);
            localStorage.setItem("token", response.data.token);
@@ -46,11 +46,14 @@ function LoginForm({setAuthToken}) {
              }else if(decodedToken && decodedToken.role === "recruiter"){
               localStorage.setItem("recruiterAuth", true);
               navigate('/recruiterdashboard')
+             }else if(decodedToken && decodedToken.role === "superadmin"){
+              localStorage.setItem("superadminAuth", true);
+              navigate('/superadmindashboard')
              }
             }, 500)
            
          }
-         console.log("login response", response)
+        
         
        } catch (error) {
           console.log("error at login", error.message)

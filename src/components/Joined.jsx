@@ -4,8 +4,25 @@ import { faArrowDown, faArrowUp,  faCheck, faTimes } from '@fortawesome/free-sol
 import { FaPencilAlt } from "react-icons/fa";
 import axios from 'axios';
 import { decodeToken } from '../utils/decodeToken';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 
+const TableCellWithTooltip = ({ content, maxLength }) => {
+  const renderTooltip = (props) => (
+    <Tooltip id="tooltip-top" {...props}>
+      {content}
+    </Tooltip>
+  );
 
+  const truncatedContent = content.length > maxLength ? `${content.slice(0, maxLength)}...` : content;
+
+  return (
+    <OverlayTrigger placement="top" overlay={renderTooltip} delay={{ show: 250, hide: 400 }}>
+      <td>{truncatedContent}</td>
+    </OverlayTrigger>
+  );
+};
 const Joined = () => {
   const [searchText, setSearchText] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -21,7 +38,8 @@ const Joined = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
+      const response = await axios.get('http://103.38.50.152/nodejs/candidate/candidatesdata');
+      // const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
       const data = response.data;
 
       // Flatten the nested data if necessary
@@ -32,6 +50,7 @@ const Joined = () => {
         ...candidate.wipro1,
         ...candidate.wipro2,
         ...candidate.accenture,
+        ...candidate.other,
         _id: candidate._id, // Ensure _id is preserved
       }));
 
@@ -46,7 +65,8 @@ const Joined = () => {
 
   const fetchAllData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
+      const response = await axios.get('http://103.38.50.152/nodejs/candidate/candidatesdata');
+      // const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
 
       const data = response.data;
 
@@ -58,6 +78,7 @@ const Joined = () => {
         ...candidate.wipro1,
         ...candidate.wipro2,
         ...candidate.accenture,
+        ...candidate.other,
         _id: candidate._id, // Ensure _id is preserved
       }));     
       const filteredData = flattenedData.filter(item => item.joinedStatus === "joined");
@@ -99,13 +120,14 @@ const Joined = () => {
   };
 
   const handleSaveClick = (id) => {
-    setEditingRowId(null);
+    setEditingRowId(null); 
     const file = formdata.find((item) => item._id === id); 
     console.log("file", file)
 
     // Make an API call to update the interview status in the backend 
     try {
-      const response = axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
+      const response = axios.put(`http://103.38.50.152/nodejs/candidate/updateinterviewfinalstatus/${id}`, {
+      // const response = axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
        
         joinedDate: file.joinedDate,
         joinedshortlistStatus: file.joinedshortlistStatus,
@@ -143,7 +165,8 @@ const Joined = () => {
 
     try {
       // Make an API call to update the interview status in the backend
-      const response = await axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
+      const response = await axios.put(`http://103.38.50.152/nodejs/candidate/updateinterviewfinalstatus/${id}`, {
+      // const response = await axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
         joinedStatus: value,
       });
   
@@ -175,22 +198,33 @@ const Joined = () => {
   const filteredData = sortedData.filter((item) => {
     const nameMatch = item.name?.toLowerCase().includes(searchText.toLowerCase());
     const roleMatch = item.role?.toLowerCase().includes(searchText.toLowerCase());
+    const recruiterMatch = item.recruiterName?.toLowerCase().includes(searchText.toLowerCase());
     const positionMatch = item.position?.toLowerCase().includes(searchText.toLowerCase());
     const clientMatch = item.clientName?.toLowerCase().includes(searchText.toLowerCase());
+    const locationMatch = item.location?.toLowerCase().includes(searchText.toLowerCase());
+    const emailMatch = item.email?.toLowerCase().includes(searchText.toLowerCase());
 
-    const dateObject = new Date(item.date);
+    const dateObject = new Date(item.joinedDate);
     const formattedDate = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate());
 
-    const startDateWithoutTime = startDate ? new Date(startDate).toISOString().split('T')[0] : null;
-    const endDateWithoutTime = endDate ? new Date(endDate).toISOString().split('T')[0] : null;
+const formatDate = (date) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`; // Format as 'YYYY-MM-DD'
+};
 
-    const dateMatch =
-      startDateWithoutTime &&
-      endDateWithoutTime &&
-      formattedDate >= new Date(startDateWithoutTime) &&
-      formattedDate <= new Date(endDateWithoutTime);
+// Format the dates to 'YYYY-MM-DD'
+const formattedDateWithoutTime = formatDate(formattedDate);
+const startDateWithoutTime = startDate ? formatDate(startDate) : null;
+const endDateWithoutTime = endDate ? formatDate(endDate) : null;
 
-    return (nameMatch || roleMatch || positionMatch || clientMatch) && (!startDateWithoutTime || dateMatch);
+// Perform the comparison using the formatted dates
+const dateMatch =
+  (!startDateWithoutTime || formattedDateWithoutTime >= startDateWithoutTime) &&
+  (!endDateWithoutTime || formattedDateWithoutTime <= endDateWithoutTime);
+return (nameMatch || recruiterMatch || locationMatch || emailMatch || clientMatch || roleMatch || positionMatch) && dateMatch;
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -198,9 +232,21 @@ const Joined = () => {
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const handleDateChange = (date, id) => {
+    // Convert the date to UTC format (if required)
+    const utcDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+      .toISOString()
+       // This ensures the date is in YYYY-MM-DD format
+  
+    setFormdata((prevData) =>
+      prevData.map((item) =>
+        item._id === id ? { ...item, joinedDate: utcDate } : item
+      )
+    );
+  };
 
   return (
-    <div className="container mt-4" style={{ height: '100vh' }}>
+    <div className=" mt-4" style={{ height: '100vh' }}>
       <div className="col-md-12">
         <h4 className="pt-3 pb-4 text-center font-bold font-up deep-purple-text">Joined Sheet</h4>
         <div className="input-group mb-3">
@@ -230,11 +276,12 @@ const Joined = () => {
         </div>
       </div>
 
-      <div className="datatable overflow-auto">
+      <div className="datatable overflow-auto"   style={{ overflowY: "scroll" ,maxHeight: "65%"}}>
         <table className="table table-striped table-bordered scrollable-table">
-          <thead className="align-text-bottom text-center">
+          <thead className="align-text-bottom text-center" style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
             <tr>
               <th>SL.No</th>
+              {adminLoggedIn && <th className="rec-name">Recruiter Name</th>}
               <th>
                 Joined Date
                 <button className="btn btn-link" onClick={toggleSortOrder}>
@@ -260,14 +307,14 @@ const Joined = () => {
           <tbody>
             {currentItems.map((item, index) => (
               <tr key={item._id} className="align-text-bottom text-center">
-                <th scope="row">{index + 1}</th>
-                {!adminLoggedIn?  <td> {editingRowId === item._id ? (
-                    <>  <input
-                      type="text"
-                      name="joinedDate"  
-                      value={item.joinedDate}
-                      onChange={(e) => handleInputChange(e, item._id)}
-                    /> 
+                  <th scope="row">{indexOfFirstItem + index + 1}</th>
+                {adminLoggedIn && <td>{item.recruiterName}</td>}
+                {adminLoggedIn?  <td> {editingRowId === item._id ? (
+                    <>  <DatePicker
+                    selected={item.joinedDate ? new Date(item.joinedDate) : undefined}
+                      onChange={(date) => handleDateChange(date, item._id)}
+                      dateFormat="dd-MM-yyyy"
+                    />
                     <FontAwesomeIcon
                       icon={faCheck}
                       style={{ fontSize: '18px', cursor: 'pointer' }}
@@ -280,9 +327,9 @@ const Joined = () => {
                     />
                   </>
                   ) : (
-                  <p> { item.joinedDate  }<FaPencilAlt style={{ cursor: 'pointer' }} onClick={() => handleEditClick(item._id)} /> </p>
+                  <p> { <td>{new Date(item.joinedDate).toLocaleDateString('en-GB')}</td>  }<FaPencilAlt style={{ cursor: 'pointer' }} onClick={() => handleEditClick(item._id)} /> </p>
                   )}</td>    :  
-                  <td >{item.joinedDate}</td>} 
+                  <td>{new Date(item.joinedDate).toLocaleDateString('en-GB')}</td>} 
                    <td>
                   {item.name}
                 </td>
@@ -349,17 +396,93 @@ const Joined = () => {
         </table>
       </div>
 
-      <div className="pagination justify-content-center">
-        <ul className="pagination">
-          {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }, (_, index) => (
-            <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-              <button onClick={() => paginate(index + 1)} className="page-link">
-                {index + 1}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <div className="pagination justify-content-center mt-3">
+  <ul className="pagination">
+    {/* Previous Button */}
+    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+      <button
+        onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+        className="page-link"
+      >
+        Previous
+      </button>
+    </li>
+
+    {/* First Page */}
+    {currentPage > 2 && (
+      <li className="page-item">
+        <button onClick={() => paginate(1)} className="page-link">
+          1
+        </button>
+      </li>
+    )}
+
+    {/* Dots before current page range */}
+    {currentPage > 3 && (
+      <li className="page-item disabled">
+        <span className="page-link">...</span>
+      </li>
+    )}
+
+    {/* Display 3 pages around the current page */}
+    {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }, (_, index) => index + 1)
+      .filter(
+        (page) =>
+          page === currentPage ||
+          page === currentPage - 1 ||
+          page === currentPage + 1
+      )
+      .map((page) => (
+        <li
+          key={page}
+          className={`page-item ${currentPage === page ? 'active' : ''}`}
+        >
+          <button onClick={() => paginate(page)} className="page-link">
+            {page}
+          </button>
+        </li>
+      ))}
+
+    {/* Dots after current page range */}
+    {currentPage < Math.ceil(filteredData.length / itemsPerPage) - 2 && (
+      <li className="page-item disabled">
+        <span className="page-link">...</span>
+      </li>
+    )}
+
+    {/* Last Page */}
+    {currentPage < Math.ceil(filteredData.length / itemsPerPage) - 1 && (
+      <li className="page-item">
+        <button
+          onClick={() => paginate(Math.ceil(filteredData.length / itemsPerPage))}
+          className="page-link"
+        >
+          {Math.ceil(filteredData.length / itemsPerPage)}
+        </button>
+      </li>
+    )}
+
+    {/* Next Button */}
+    <li
+      className={`page-item ${
+        currentPage === Math.ceil(filteredData.length / itemsPerPage)
+          ? 'disabled'
+          : ''
+      }`}
+    >
+      <button
+        onClick={() =>
+          currentPage < Math.ceil(filteredData.length / itemsPerPage) &&
+          paginate(currentPage + 1)
+        }
+        className="page-link"
+      >
+        Next
+      </button>
+    </li>
+  </ul>
+</div>
+
     </div>
   );
 };

@@ -1,13 +1,30 @@
 import React, { useState , useEffect} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowDown, faArrowUp, faFilePen, faDownload, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
-import Form from 'react-bootstrap/Form';
+import {Form, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import { FaPencilAlt } from "react-icons/fa";
 import axios from 'axios';
 import { decodeToken } from '../utils/decodeToken';
 import '../styles/interviewAttended.css';
+import { date } from 'yup';
 
-const InterviewAttendedSheet = ({setCounterData}) => {
+const TableCellWithTooltip = ({ content, maxLength }) => {
+  const renderTooltip = (props) => (
+    <Tooltip id="tooltip-top" {...props}>
+      {content}
+    </Tooltip>
+  );
+
+  const truncatedContent = content.length > maxLength ? `${content.slice(0, maxLength)}...` : content;
+
+  return (
+    <OverlayTrigger placement="top" overlay={renderTooltip} delay={{ show: 250, hide: 400 }}>
+      <td>{truncatedContent}</td>
+    </OverlayTrigger>
+  );
+};
+
+const InterviewAttendedSheet = ({loadData}) => {
   const [searchText, setSearchText] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -20,121 +37,83 @@ const InterviewAttendedSheet = ({setCounterData}) => {
   const [adminLoggedIn, setAdminLoggedIn] = useState(localStorage.getItem('adminAuth') === 'true');
 
   // Fetch candidates' data
-  const fetchData = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
-      const data = response.data;
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://103.38.50.152/nodejs/candidate/candidatesdata');
+        // const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
+        const data = response.data;
 
-      // Flatten the nested data if necessary
-      const flattenedData = data.map(candidate => ({
-        ...candidate.common,
-        ...candidate.infosys,
-        ...candidate.jobDetails,
-        ...candidate.wipro1,
-        ...candidate.wipro2,
-        ...candidate.accenture,
-        _id: candidate._id, // Ensure _id is preserved
-      }));
+        // Flatten the nested data if necessary
+        const flattenedData = data.map(candidate => ({
+          ...candidate.common,
+          ...candidate.infosys,
+          ...candidate.jobDetails,
+          ...candidate.wipro1,
+          ...candidate.wipro2,
+          ...candidate.accenture,
+          ...candidate.other,
+          _id: candidate._id, // Ensure _id is preserved
+        }));
 
-      // Filter by recruiterId
-      const filteredData = flattenedData.filter(item => item.recruiterId === recruiterId.toString());
-      const interviewAttended = filteredData.filter(item => item.interviewStatus === "attended");
-      const selectedcount = filteredData.filter(item => item.interviewFinalStatus === "selected").length;
-      const rejectedcount = filteredData.filter(item => item.interviewFinalStatus === "hold").length;
-      const holdcount = filteredData.filter(item => item.interviewFinalStatus === "rejected").length;
-
-      setFormdata(interviewAttended);
-      console.log("fetdch : ",  interviewAttended);
-      const counter = [{
-        name : "Total Attended",
-        count : flattenedData.length
-      },
-      {
-        name : "Selected",
-        count : selectedcount
-      },
-      {
-        name : "Rejected",
-        count : rejectedcount
-      },
-      {
-        name : "Holded",
-        count : holdcount
-      }
-    ];
-      setCounterData(counter);
-    
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  const fetchAllData = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
-      const data = response.data;
-
-      // Flatten the nested data if necessary
-      const flattenedData = data.map(candidate => ({
-        ...candidate.common,
-        ...candidate.infosys,
-        ...candidate.jobDetails,
-        ...candidate.wipro1,
-        ...candidate.wipro2,
-        ...candidate.accenture,
-        _id: candidate._id, // Ensure _id is preserved
-      }));
-      const interviewAttended = flattenedData.filter(item => item.interviewStatus === "attended");
-      const selectedcount = filteredData.filter(item => item.interviewFinalStatus === "selected").length;
-      const rejectedcount = filteredData.filter(item => item.interviewFinalStatus === "hold").length;
-      const holdcount = filteredData.filter(item => item.interviewFinalStatus === "rejected").length;
-     
-      setFormdata(interviewAttended);
+        // Filter by recruiterId
+        const filteredData = flattenedData.filter(item => item.recruiterId === recruiterId.toString());
+        const interviewAttended = filteredData.filter(item => item.interviewStatus === "attended");
+        setFormdata(interviewAttended);
       
-      const counter = [{
-        name : "Total Attended",
-        count : flattenedData.length
-      },
-      {
-        name : "Selected",
-        count : selectedcount
-      },
-      {
-        name : "Rejected",
-        count : rejectedcount
-      },
-      {
-        name : "Holded",
-        count : holdcount
-      }
-    ];
-      setCounterData(counter);
       
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  // Decode token and set recruiter ID
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decodedToken = decodeToken(token);
-      if (decodedToken && decodedToken.userId) {
-        setRecruiterId(decodedToken.userId);
+      
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
-    }
-  }, []);
+    };
 
-  // Fetch data when recruiterId changes
-  useEffect(() => {
-    if (recruiterId) {
-      fetchData();
-    }
-    if(adminLoggedIn){
-      fetchAllData()
-    }
-  }, [recruiterId]);
+    const fetchAllData = async () => {
+      try {
+        const response = await axios.get('http://103.38.50.152/nodejs/candidate/candidatesdata');
+        // const response = await axios.get('http://localhost:5000/candidate/candidatesdata');
+        const data = response.data;
+
+        // Flatten the nested data if necessary
+        const flattenedData = data.map(candidate => ({
+          ...candidate.common,
+          ...candidate.infosys,
+          ...candidate.jobDetails,
+          ...candidate.wipro1,
+          ...candidate.wipro2,
+          ...candidate.accenture,
+          ...candidate.other,
+          _id: candidate._id, // Ensure _id is preserved
+        }));
+        const interviewAttended = flattenedData.filter(item => item.interviewStatus === "attended"); 
+        setFormdata(interviewAttended);
+        
+      
+        
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    // Decode token and set recruiter ID
+    useEffect(() => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const decodedToken = decodeToken(token);
+        if (decodedToken && decodedToken.userId) {
+          setRecruiterId(decodedToken.userId);
+        }
+      }
+    }, []);
+
+    // Fetch data when recruiterId changes
+    useEffect(() => {
+      if (recruiterId) {
+        fetchData();
+      }
+      if(adminLoggedIn){
+        fetchAllData()
+      }
+    }, [recruiterId]);
 
 
   const handleEditClick = (id) => {
@@ -152,7 +131,8 @@ const InterviewAttendedSheet = ({setCounterData}) => {
 
     // Make an API call to update the interview status in the backend 
     try {
-      const response = axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
+      const response = axios.put(`http://103.38.50.152/nodejs/candidate/updateinterviewfinalstatus/${id}`, {
+      // const response = axios.put(`http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`, {
         remark2: file.remark2,
         interviewFinalRemark: file.interviewFinalRemark,
       })
@@ -192,6 +172,7 @@ const InterviewAttendedSheet = ({setCounterData}) => {
     // Prepare the data to be sent using e.target values
     const sendfile = {
       interviewFinalStatus: name === 'interviewFinalStatus' ? value : undefined,
+      shortlistedDate : new Date(),
       remark1: name === 'remark1' ? value : undefined,
     };
   
@@ -199,12 +180,13 @@ const InterviewAttendedSheet = ({setCounterData}) => {
   
     try {
       // Make an API call to update the interview status in the backend
-      const response = await axios.put(
-        `http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`,
+      const response = await axios.put( `http://103.38.50.152/nodejs/candidate/updateinterviewfinalstatus/${id}`,
+      // const response = await axios.put( `http://localhost:5000/candidate/updateinterviewfinalstatus/${id}`,
         sendfile
       );
   
       if (response.status === 200) {
+        loadData();
         console.log("Status updated successfully:", response.data);
       } else {
         console.log("Failed to update status");
@@ -221,31 +203,45 @@ const InterviewAttendedSheet = ({setCounterData}) => {
 
   // Sort and filter data
   const sortedData = formdata.sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
+    const dateA = new Date(a.interviewdate);
+    const dateB = new Date(b.interviewdate);
     return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
   });
 
   const filteredData = sortedData.filter((item) => {
     const nameMatch = item.name?.toLowerCase().includes(searchText.toLowerCase());
     const roleMatch = item.role?.toLowerCase().includes(searchText.toLowerCase());
+    const recruiterMatch = item.recruiterName?.toLowerCase().includes(searchText.toLowerCase());
     const positionMatch = item.position?.toLowerCase().includes(searchText.toLowerCase());
     const clientMatch = item.clientName?.toLowerCase().includes(searchText.toLowerCase());
+    const locationMatch = item.location?.toLowerCase().includes(searchText.toLowerCase());
+    const emailMatch = item.email?.toLowerCase().includes(searchText.toLowerCase());
 
 
-    const dateObject = new Date(item.createdDate);
+    const dateObject = new Date(item.interviewdate);
     const formattedDate = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate());
 
-    const startDateWithoutTime = startDate ? new Date(startDate).toISOString().split('T')[0] : null;
-    const endDateWithoutTime = endDate ? new Date(endDate).toISOString().split('T')[0] : null;
 
+    const formatDate = (date) => {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`; // Format as 'YYYY-MM-DD'
+    };
+    
+    // Format the dates to 'YYYY-MM-DD'
+    const formattedDateWithoutTime = formatDate(formattedDate);
+    const startDateWithoutTime = startDate ? formatDate(startDate) : null;
+    const endDateWithoutTime = endDate ? formatDate(endDate) : null;
+  
+    // Perform the comparison using the formatted dates
     const dateMatch =
-      startDateWithoutTime &&
-      endDateWithoutTime &&
-      formattedDate >= new Date(startDateWithoutTime) &&
-      formattedDate <= new Date(endDateWithoutTime);
+      (!startDateWithoutTime || formattedDateWithoutTime >= startDateWithoutTime) &&
+      (!endDateWithoutTime || formattedDateWithoutTime <= endDateWithoutTime);
+    
 
-    return (nameMatch  || clientMatch || roleMatch || positionMatch) && (!startDateWithoutTime || dateMatch);
+    return (nameMatch || recruiterMatch || locationMatch || emailMatch || clientMatch || roleMatch || positionMatch) && dateMatch;
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -254,8 +250,30 @@ const InterviewAttendedSheet = ({setCounterData}) => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const getColor = (interviewStatus) => {
+    switch (interviewStatus) {
+      case 'nill':
+        return 'white';
+      case 'shortlisted':
+        return '#7ed4ad7d';
+      case 'rejected':
+        return '#c968687a';
+      case 'hold':
+        return '#feee918f';
+      default:
+        return 'white';
+    }
+  };
+
+  const openPdfInNewTab = (pdfId) => {
+    if (pdfId) {
+      const pdfUrl = `http://103.38.50.152/nodejs/candidate/pdfs/${pdfId}`;
+      window.open(pdfUrl, '_blank');
+    }
+  };
+
   return (
-    <div className="container mt-4" style={{ height: '100vh' }}>
+    <div className=" mt-4" style={{ height: '100vh' }}>
       <div className="col-md-12">
         <h4 className="pt-3 pb-4 text-center font-bold font-up deep-purple-text">Interview Attended Sheet</h4>
         <div className="input-group mb-3">
@@ -285,11 +303,13 @@ const InterviewAttendedSheet = ({setCounterData}) => {
         </div>
       </div>
 
-      <div className="datatable overflow-auto">
-      <table className="table table-striped table-bordered scrollable-table1">
-  <thead className="align-text-bottom text-center">
+      <div className="datatable overflow-auto"   style={{ overflowY: "scroll" ,maxHeight: "65%"}}>
+      <table className="profile-table table-bordered scrollable-table1">
+  <thead className="align-text-bottom text-center" style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
     <tr>
+       {adminLoggedIn && <th className="sl-no">Action</th>}
       <th className="sl-no">SL.No</th>
+      
       {adminLoggedIn && <th className="rec-name">Recruiter Name</th>}
       <th className="schedule-date">Schedule Date</th>
       <th className="interview-date">
@@ -313,12 +333,18 @@ const InterviewAttendedSheet = ({setCounterData}) => {
       <th className="expected-ctc">Expected CTC</th>
       <th className="notice-period">Notice Period</th>
       <th className="final-remarks">Final Remarks</th>
+      
     </tr>
   </thead>
   <tbody>
     {currentItems.map((item, index) => (
-      <tr key={item._id} className="align-text-bottom text-center">
-        <th scope="row">{index + 1}</th>
+      <tr key={item._id} className="align-text-bottom text-center" style={{ backgroundColor: getColor(item.interviewFinalStatus) }}>
+         {adminLoggedIn && <FontAwesomeIcon 
+                        icon={faDownload}
+                        style={{ fontSize: '18px', cursor: 'pointer',marginLeft: '10px', color: '#062a9b' }}
+                        onClick={() => openPdfInNewTab(item._id)} /> 
+                    }
+         <th scope="row">{indexOfFirstItem + index + 1}</th>
         {adminLoggedIn && <td>{item.recruiterName}</td>}
         <td>{new Date(item.createdDate).toLocaleDateString('en-GB')}</td>
                    <td>{new Date(item.interviewdate).toLocaleDateString('en-GB')}</td>
@@ -352,19 +378,17 @@ const InterviewAttendedSheet = ({setCounterData}) => {
                     />
                   </>
                   ) : (
-                  <p> { item.remark2  }<FaPencilAlt style={{ cursor: 'pointer' }} onClick={() => handleEditClick(item._id)} /> </p>
+                  <p>  <TableCellWithTooltip content={item.remark2? item.remark2 : 'N/A'} maxLength={20} /><FaPencilAlt style={{ cursor: 'pointer' }} onClick={() => handleEditClick(item._id)} /> </p>
                   )}</td>  
-                  {!adminLoggedIn?
+                 
                    <td> <Form.Select size="sm"
                            name='interviewFinalStatus' defaultValue={item.interviewFinalStatus} onChange={(e) => handleFinalStatusChange(e, item._id)}>
                         <option value="nill">Please Select</option>
-                        <option value="selected">Selected</option>
+                        <option value="shortlisted">Shortlisted</option>
                         <option value="rejected">Rejected</option>
                         <option value="hold">Hold</option>
                        </Form.Select>
-                </td> :
-                <td>{item.interviewFinalStatus?item.interviewFinalStatus.replace(/\b\w/g, l => l.toUpperCase()):"-"}</td>}
-                 
+                </td> 
                 <td>
                   {item.name}
                 </td>
@@ -403,7 +427,8 @@ const InterviewAttendedSheet = ({setCounterData}) => {
                     />
                   </>
                   ) : (
-                    <p> { item.interviewFinalRemark  }  <FaPencilAlt style={{ cursor: 'pointer' }} onClick={() => handleEditClick(item._id)} /> </p>
+                   
+                    <p>  <TableCellWithTooltip content={item.interviewFinalRemark? item.interviewFinalRemark : 'N/A'} maxLength={20} />  <FaPencilAlt style={{ cursor: 'pointer' }} onClick={() => handleEditClick(item._id)} /> </p>
                   )}
                 </td>
                 {/* <td>
@@ -435,17 +460,93 @@ const InterviewAttendedSheet = ({setCounterData}) => {
 
       </div>
 
-      <div className="pagination justify-content-center">
-        <ul className="pagination">
-          {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }, (_, index) => (
-            <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-              <button onClick={() => paginate(index + 1)} className="page-link">
-                {index + 1}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <div className="pagination justify-content-center mt-3">
+  <ul className="pagination">
+    {/* Previous Button */}
+    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+      <button
+        onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+        className="page-link"
+      >
+        Previous
+      </button>
+    </li>
+
+    {/* First Page */}
+    {currentPage > 2 && (
+      <li className="page-item">
+        <button onClick={() => paginate(1)} className="page-link">
+          1
+        </button>
+      </li>
+    )}
+
+    {/* Dots before current page range */}
+    {currentPage > 3 && (
+      <li className="page-item disabled">
+        <span className="page-link">...</span>
+      </li>
+    )}
+
+    {/* Display 3 pages around the current page */}
+    {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }, (_, index) => index + 1)
+      .filter(
+        (page) =>
+          page === currentPage ||
+          page === currentPage - 1 ||
+          page === currentPage + 1
+      )
+      .map((page) => (
+        <li
+          key={page}
+          className={`page-item ${currentPage === page ? 'active' : ''}`}
+        >
+          <button onClick={() => paginate(page)} className="page-link">
+            {page}
+          </button>
+        </li>
+      ))}
+
+    {/* Dots after current page range */}
+    {currentPage < Math.ceil(filteredData.length / itemsPerPage) - 2 && (
+      <li className="page-item disabled">
+        <span className="page-link">...</span>
+      </li>
+    )}
+
+    {/* Last Page */}
+    {currentPage < Math.ceil(filteredData.length / itemsPerPage) - 1 && (
+      <li className="page-item">
+        <button
+          onClick={() => paginate(Math.ceil(filteredData.length / itemsPerPage))}
+          className="page-link"
+        >
+          {Math.ceil(filteredData.length / itemsPerPage)}
+        </button>
+      </li>
+    )}
+
+    {/* Next Button */}
+    <li
+      className={`page-item ${
+        currentPage === Math.ceil(filteredData.length / itemsPerPage)
+          ? 'disabled'
+          : ''
+      }`}
+    >
+      <button
+        onClick={() =>
+          currentPage < Math.ceil(filteredData.length / itemsPerPage) &&
+          paginate(currentPage + 1)
+        }
+        className="page-link"
+      >
+        Next
+      </button>
+    </li>
+  </ul>
+</div>
+
     </div>
   );
 };

@@ -10,11 +10,11 @@ import { decodeToken } from '../utils/decodeToken';
 
 
 
-function WiproForm2() {
+function WiproForm2({onFormSubmit}) {
   const [show, setShow] = useState(false);
   const fileInputRef = useRef(null);
   const [recruiterName, setRecruiterName] = useState('');
-
+  const [btnLoading, setBtnLoading] = useState(false);
   const [recruiterId, setRecruiterId] = useState('');
 
   useEffect(() => {
@@ -36,7 +36,7 @@ function WiproForm2() {
     gender: yup.string().required('Gender is required'),
     currentCompany : yup.string().required('Current Company is required'),
     location : yup.string().required('Current Location is required'),
-    email: yup.string().required('Email is required'),
+    email: yup.string().email('Invalid email').required('Email is required'),
     phoneNumber: yup
       .string()
       .matches(/^\d{10}$/, 'Phone number must be 10 digits')
@@ -44,19 +44,24 @@ function WiproForm2() {
     preferredLocation : yup.string().required('Preferred Location is required'),
     overAllExp: yup
       .string()
-      .matches(/^\d+$/, 'Overall experience must be a number')
+      .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
       .required('Overall Experience is required'),
     relevantExp: yup
       .string()
-      .matches(/^\d+$/, 'Relevant experience must be a number')
+      .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
       .required('Relevant Experience is required'),
-    currentCtc : yup.string().required('Current CTC is required'),
-    expectedCtc : yup.string().required('Expected CTC is required'),
+    currentCtc : yup.string()
+    .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+    .required('Current CTC is required'),
+    expectedCtc : yup.string()
+    .matches(/^\d+(\.\d+)?$/, 'Relevant Experience must be a valid number')
+    .required('Expected CTC is required'),
     noticePeriod : yup.string().required('Notice Period is required'),
     role : yup.string().required('Role is required'),
   });
  
   const handleSubmit = async (values, { resetForm }) => {
+    setBtnLoading(true);
     try {
       const formData = new FormData();
 
@@ -101,7 +106,8 @@ function WiproForm2() {
       formData.append('vendorName', 'SKYLARK HR SOLUTIONS');
      
       console.log('Form Data:', Object.fromEntries(formData));
-      const response = await axios.post('http://localhost:5000/candidate/add', formData, {
+      const response = await axios.post('http://103.38.50.152/nodejs/candidate/add', formData, {
+        // const response = await axios.post('http://localhost:5000/candidate/add', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -110,6 +116,8 @@ function WiproForm2() {
         alert('Your data has been saved successfully!');
          resetForm();
          fileInputRef.current.value = '';
+         onFormSubmit();
+         setBtnLoading(false);
       }
     } catch (error) {
       console.error('App.Form API Error:', error);
@@ -419,7 +427,7 @@ function WiproForm2() {
                                    resetForm();
                                fileInputRef.current.value = '';}} 
                  >Reset All</Button>
-           <Button type="submit">Submit</Button>
+           <Button type="submit" disabled={btnLoading}>Submit</Button>
           </div>
         </Form>
       )}

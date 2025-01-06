@@ -1,0 +1,40 @@
+.billingbutton-main {
+    display: flex;
+    border-radius: 10px;
+    border: 1px solid grey;
+    overflow: hidden;
+    width: fit-content;
+    padding: 8px;
+    background-color: #717f8d;
+}
+
+.billingbtns {
+    list-style: none;
+    padding: 15px;
+    background-color: #758694;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Apply border-right to all list items except the last one */
+.billingbtns:not(:last-child) {
+    border-right: 3px solid white;
+    
+}
+
+/* Change background color on click */
+.billingbtns.active {
+    background-color: #61677A; /* Change this color as per your preference */
+}
+
+.billingbtns:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+  }
+  
+  /* Add right border-radius to the last button */
+  .billingbtns:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
